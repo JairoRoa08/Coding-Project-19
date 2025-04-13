@@ -1,19 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import TourCard from './TourCard'; // Adjust path if needed
+import TourCard from './TourCard';
 
 function Gallery  ({ tours, onRemove })  {
   const [loading, setLoading] = useState(true);
   const [fetchedTours, setFetchedTours] = useState([]);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchTours = async () => {
       try {
         const res = await fetch('https://course-api.com/react-tours-project');
+        if (!res.ok) throw new Error("Something went wrong while fetching tours.");
         const data = await res.json();
         setFetchedTours(data);
-        setLoading(false);
-      } catch (error) {
-        console.error("Couldn't find selected tours:", error);
+        setError(null);
+      } catch (err) {
+        setError(err.message);
+      } finally {
         setLoading(false);
       }
     };
@@ -25,6 +28,9 @@ function Gallery  ({ tours, onRemove })  {
     return <p>Loading tours...</p>;
   }
 
+  if (error) {
+    return <p style={{ color: 'red' }}>Error: {error}</p>;
+  }
   return (
     <div className="gallery">
       {fetchedTours.map((tour) => (
@@ -37,5 +43,4 @@ function Gallery  ({ tours, onRemove })  {
     </div>
   );
 };
-
 export default Gallery;
